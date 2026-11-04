@@ -109,3 +109,5 @@ textarea { margin-bottom: 6px; resize: vertical; }
   .panel { animation: rise .16s ease-out; }
   @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
 }
+.pricier { color: var(--warn-text); font-weight: 600; }
+@media (prefers-color-scheme: light) { .pricier { color: var(--danger); } }

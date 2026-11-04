@@ -176,3 +176,34 @@ test("page info holds the structure, never names or prices", () => {
   assert.ok(parsed.buttons.includes("Remove all articles"));
   assert.ok(!parsed.buttons.includes("Remove"));  // the article rows' own buttons are left out
 });
+
+test("a missing article is searched at its seller by the English name from its URL", () => {
+  const item = { id: "1", seller: "Card-foundry", slug: "Pia-Aether-Ascetic", name: "Pia, Äther-Asketin", qty: 1 };
+  assert.deepEqual(C.searchUrls(item), [
+    "https://www.cardmarket.com/en/Magic/Users/Card-foundry/Offers/Singles?name=Pia+Aether+Ascetic",
+    "https://www.cardmarket.com/en/Magic/Users/Card-foundry/Offers/Singles?name=Ascetic",
+  ]);
+  const basic = C.searchUrls({ seller: "cernyrytir", slug: "Mountain-V2", name: "Mountain (V.2)" });
+  assert.deepEqual(basic, ["https://www.cardmarket.com/en/Magic/Users/cernyrytir/Offers/Singles?name=Mountain&sortBy=price_asc"]);
+});
+
+test("the found offer is the same card, language and condition or better; same edition before a cheaper one", () => {
+  const offers = C.parseOffers(page("offers-search.html"), "https://www.cardmarket.com/en/Magic/Users/PapaSven/Offers/Singles?name=x");
+  const item = { id: "2164329369", seller: "PapaSven", slug: "Divine-Visitation", set: "Commander-Legends", name: "Divine Visitation", price: 7.67, cond: "EX", lang: "English", qty: 2 };
+  const best = C.pickOffer(item, offers);
+  // not the Russian one, not the GD one, not the V1 variant; same edition beats the cheaper Guilds of Ravnica one
+  assert.equal(best.id, "2199000005");
+  assert.equal(best.pricier, true);
+  assert.equal(best.qty, 2);
+  assert.equal(C.pickOffer({ ...item, set: "" }, offers).id, "2199000004");  // edition unknown: the cheapest that fits
+  assert.equal(C.pickOffer({ ...item, slug: "Sol-Ring" }, offers), null);
+  assert.equal(C.pickOffer({ ...item, lang: "Russian", cond: "NM" }, offers).id, "2199000001");
+});
+
+test("found offers replace the old articles in the snapshot", () => {
+  const s = C.makeSnapshot({ items: [{ id: "1", seller: "A", slug: "X", price: 1, qty: 1 }, { id: "2", seller: "B", slug: "Y", price: 2, qty: 1 }], totals: null });
+  const u = C.replaceItems(s, [{ old: "2", offer: { id: "9", set: "Set", slug: "Y", price: 2.5, cond: "NM", lang: "English", qty: 1 } }]);
+  assert.deepEqual(u.items.map((i) => [i.id, i.price]), [["1", 1], ["9", 2.5]]);
+  assert.equal(u.totals.value, 3.5);
+  assert.equal(s.items[1].id, "2");  // the old snapshot object stays as it was
+});

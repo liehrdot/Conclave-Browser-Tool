@@ -10,7 +10,8 @@ aren't held in your cart for days.
 
 - **Save cart**: reads the cart page and keeps every article (seller, card, condition, price, amount).
 - **Restore**: puts all articles of a snapshot back in one request, then opens the cart and compares.
-- **Compare**: shows what is missing (sold or changed by the seller), has fewer copies or a new price.
+- **Compare**: shows what is missing (sold or changed by the seller), has fewer copies, a new price or isn't English.
+- **Look for N again**: finds a missing card at the same seller (same card, language, condition or better) and puts it in.
 - **Empty cart …**: asks first, saves the cart as a snapshot, then clicks Cardmarket's "Remove all articles".
 - **Copy / Import …**: a snapshot as text, to keep it or move it to another computer.
 
