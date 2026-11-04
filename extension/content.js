@@ -73,6 +73,21 @@
     for (const k of kids.flat()) if (k != null && k !== false) e.append(k);
     return e;
   }
+  // the Conclave app icon (extension/icons/icon.svg), drawn inline so it needs no extra file access
+  function logo() {
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 512 512");
+    svg.setAttribute("class", "logo");
+    svg.setAttribute("aria-hidden", "true");
+    const rect = document.createElementNS(NS, "rect");
+    for (const [k, v] of [["width", 512], ["height", 512], ["rx", 112], ["fill", "#4ae05a"]]) rect.setAttribute(k, v);
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", "M390 128H249.2a128 128 0 0 0 0 256H390v-76H249.2a52 52 0 0 1 0-104H390z");
+    path.setAttribute("fill", "#000");
+    svg.append(rect, path);
+    return svg;
+  }
   const button = (text, run, kind = "", extra = {}) => el("button", { type: "button", class: `btn ${kind}`, onclick: run, ...extra }, text);
   function say(kind, text, more = null) {
     note = { kind, text };
@@ -97,7 +112,7 @@
     const here = onCart() ? C.parseCart(document) : null;
     panel.replaceChildren(...[
       el("header", {},
-        el("span", { class: "logo", "aria-hidden": "true" }, "C"),
+        logo(),
         el("div", { class: "title" }, el("b", {}, "Conclave"), el("span", {}, t("panelTitle"))),
         button("×", hide, "icon", { "aria-label": t("close"), title: t("close") })),
       cartBox(here),

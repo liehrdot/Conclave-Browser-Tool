@@ -57,10 +57,7 @@
   padding: 12px 14px 10px;
 }
 header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.logo {
-  width: 28px; height: 28px; border-radius: 7px; background: var(--accent); color: var(--on-accent);
-  display: grid; place-items: center; font-weight: 800; font-size: 17px;
-}
+.logo { width: 28px; height: 28px; flex: none; display: block; }
 .title { display: flex; flex-direction: column; line-height: 1.2; flex: 1; }
 .title b { font-size: 14px; }
 .title span { color: var(--muted); font-size: 12px; }
