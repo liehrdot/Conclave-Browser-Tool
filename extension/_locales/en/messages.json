@@ -1,0 +1,215 @@
+{
+  "extName": {
+    "message": "Conclave for Cardmarket"
+  },
+  "extDescription": {
+    "message": "Save your Cardmarket cart as a snapshot and put it back later, with one click."
+  },
+  "actionTitle": {
+    "message": "Conclave: cart snapshots"
+  },
+  "panelTitle": {
+    "message": "Cart snapshots"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "snapshots": {
+    "message": "Saved carts"
+  },
+  "noSnapshots": {
+    "message": "Nothing saved yet. Fill your cart (e.g. with the Shopping Wizard) and click “Save cart”."
+  },
+  "import": {
+    "message": "Import …"
+  },
+  "emptyCart": {
+    "message": "Empty cart …"
+  },
+  "copyPageInfo": {
+    "message": "Copy page info"
+  },
+  "copyPageInfoHint": {
+    "message": "Only the page's structure, no names or prices. Send it to Flo when reading the cart fails."
+  },
+  "cartElsewhere": {
+    "message": "Your cart is read from Cardmarket when you save."
+  },
+  "cartEmpty": {
+    "message": "Your cart is empty."
+  },
+  "cartNow": {
+    "message": "In your cart: $1 articles from $2 sellers, $3."
+  },
+  "saveCart": {
+    "message": "Save cart"
+  },
+  "snapshotFacts": {
+    "message": "$1 articles · $2 sellers · $3"
+  },
+  "rename": {
+    "message": "Rename"
+  },
+  "untitled": {
+    "message": "Cart"
+  },
+  "restore": {
+    "message": "Restore"
+  },
+  "check": {
+    "message": "Compare"
+  },
+  "copyJson": {
+    "message": "Copy"
+  },
+  "copiedJson": {
+    "message": "Copied. Paste it into “Import …” on another computer."
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "reading": {
+    "message": "Reading your cart …"
+  },
+  "challenge": {
+    "message": "Cardmarket is checking your browser. Solve the check on the page, then try again."
+  },
+  "challengeJob": {
+    "message": "Cardmarket is checking your browser. Solve the check: Conclave carries on by itself afterwards."
+  },
+  "cannotRead": {
+    "message": "Couldn't find the articles on the cart page. Click “Copy page info” and send it, so the reader can be fixed."
+  },
+  "defaultName": {
+    "message": "Cart of $1"
+  },
+  "saved": {
+    "message": "Saved: $1 articles from $2 sellers. You can empty the cart now and restore it shortly before you order."
+  },
+  "requestFailed": {
+    "message": "Cardmarket didn't answer ($1). Are you signed in?"
+  },
+  "restoreAsk": {
+    "message": "Put $1 articles from $2 sellers into your cart?"
+  },
+  "abuseHint": {
+    "message": "Do this only shortly before you order: Cardmarket warns that abusing the cart can get an account suspended. Checkout stays yours, Conclave never orders."
+  },
+  "restoreNow": {
+    "message": "Put into cart"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "noSeller": {
+    "message": "This snapshot names no seller, so there's no offer page to send it from."
+  },
+  "openingOffers": {
+    "message": "Opening $1's offers (Cardmarket's add-to-cart form is there) …"
+  },
+  "noForm": {
+    "message": "No add-to-cart form on this page. Open any seller's offers and try again."
+  },
+  "adding": {
+    "message": "Adding $1 articles …"
+  },
+  "openingCart": {
+    "message": "Opening your cart …"
+  },
+  "missingTitle": {
+    "message": "Not in the cart ($1)"
+  },
+  "fewerTitle": {
+    "message": "Fewer copies ($1)"
+  },
+  "fewerItem": {
+    "message": "$1 of $2"
+  },
+  "pricierTitle": {
+    "message": "Price changed ($1)"
+  },
+  "foreignTitle": {
+    "message": "Not in English ($1)"
+  },
+  "extraLine": {
+    "message": "$1 more articles in the cart that aren't in this snapshot."
+  },
+  "cartTotal": {
+    "message": "Total $1 (shipping $2)."
+  },
+  "restoredAll": {
+    "message": "All $1 articles are in your cart."
+  },
+  "restoredSome": {
+    "message": "$1 of $2 articles are in your cart."
+  },
+  "checkOk": {
+    "message": "The cart matches: all $1 articles are there."
+  },
+  "checkSome": {
+    "message": "$1 of $2 articles are in your cart."
+  },
+  "missingHint": {
+    "message": "Missing ones were probably sold or changed by the seller."
+  },
+  "emptyAsk": {
+    "message": "Remove all articles from your cart? Conclave saves it as a snapshot first."
+  },
+  "emptyNow": {
+    "message": "Empty cart"
+  },
+  "noEmptyButton": {
+    "message": "Couldn't find Cardmarket's “Remove all articles” button."
+  },
+  "beforeEmptying": {
+    "message": "Before emptying, $1"
+  },
+  "emptying": {
+    "message": "Emptying your cart … please stay on this page until it has reloaded."
+  },
+  "emptyPartial": {
+    "message": "$1 articles are still in your cart: emptying stopped halfway. Click “Empty cart …” again."
+  },
+  "emptied": {
+    "message": "Done. Restore it below shortly before you order."
+  },
+  "emptiedKept": {
+    "message": "Done. What was in it is saved below."
+  },
+  "importHint": {
+    "message": "Paste a snapshot you copied with “Copy”."
+  },
+  "importPlaceholder": {
+    "message": "{\"conclave\": \"cardmarket-cart\", …}"
+  },
+  "importNow": {
+    "message": "Import"
+  },
+  "importNotJson": {
+    "message": "That isn't a snapshot (no JSON)."
+  },
+  "importEmpty": {
+    "message": "No articles found in it."
+  },
+  "importedName": {
+    "message": "Imported $1"
+  },
+  "imported": {
+    "message": "Imported: $1 articles from $2 sellers."
+  },
+  "copyFailed": {
+    "message": "Couldn't copy. Allow the clipboard for cardmarket.com and try again."
+  },
+  "copiedPageInfo": {
+    "message": "Page info copied."
+  },
+  "deleted": {
+    "message": "Deleted “$1”."
+  },
+  "undo": {
+    "message": "Undo"
+  },
+  "restoredSnapshot": {
+    "message": "It's back."
+  }
+}

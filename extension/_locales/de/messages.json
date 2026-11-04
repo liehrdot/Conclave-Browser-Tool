@@ -1,0 +1,215 @@
+{
+  "extName": {
+    "message": "Conclave für Cardmarket"
+  },
+  "extDescription": {
+    "message": "Speichert deinen Cardmarket-Warenkorb als Schnappschuss und legt ihn später mit einem Klick wieder hinein."
+  },
+  "actionTitle": {
+    "message": "Conclave: Warenkorb-Schnappschüsse"
+  },
+  "panelTitle": {
+    "message": "Warenkorb-Schnappschüsse"
+  },
+  "close": {
+    "message": "Schließen"
+  },
+  "snapshots": {
+    "message": "Gespeicherte Warenkörbe"
+  },
+  "noSnapshots": {
+    "message": "Noch nichts gespeichert. Fülle deinen Warenkorb (z. B. mit dem Shopping Wizard) und klicke auf „Warenkorb speichern“."
+  },
+  "import": {
+    "message": "Importieren …"
+  },
+  "emptyCart": {
+    "message": "Warenkorb leeren …"
+  },
+  "copyPageInfo": {
+    "message": "Seiten-Info kopieren"
+  },
+  "copyPageInfoHint": {
+    "message": "Nur der Aufbau der Seite, keine Namen oder Preise. Schick sie, wenn das Auslesen nicht klappt."
+  },
+  "cartElsewhere": {
+    "message": "Dein Warenkorb wird beim Speichern von Cardmarket gelesen."
+  },
+  "cartEmpty": {
+    "message": "Dein Warenkorb ist leer."
+  },
+  "cartNow": {
+    "message": "Im Warenkorb: $1 Artikel von $2 Händlern, $3."
+  },
+  "saveCart": {
+    "message": "Warenkorb speichern"
+  },
+  "snapshotFacts": {
+    "message": "$1 Artikel · $2 Händler · $3"
+  },
+  "rename": {
+    "message": "Umbenennen"
+  },
+  "untitled": {
+    "message": "Warenkorb"
+  },
+  "restore": {
+    "message": "Wiederherstellen"
+  },
+  "check": {
+    "message": "Vergleichen"
+  },
+  "copyJson": {
+    "message": "Kopieren"
+  },
+  "copiedJson": {
+    "message": "Kopiert. Füge es auf einem anderen Rechner unter „Importieren …“ ein."
+  },
+  "delete": {
+    "message": "Löschen"
+  },
+  "reading": {
+    "message": "Lese deinen Warenkorb …"
+  },
+  "challenge": {
+    "message": "Cardmarket prüft gerade deinen Browser. Löse die Prüfung auf der Seite und versuch es dann noch einmal."
+  },
+  "challengeJob": {
+    "message": "Cardmarket prüft gerade deinen Browser. Löse die Prüfung, danach macht Conclave von selbst weiter."
+  },
+  "cannotRead": {
+    "message": "Ich finde die Artikel auf der Warenkorbseite nicht. Klick auf „Seiten-Info kopieren“ und schick sie, dann lässt sich das Auslesen anpassen."
+  },
+  "defaultName": {
+    "message": "Warenkorb vom $1"
+  },
+  "saved": {
+    "message": "Gespeichert: $1 Artikel von $2 Händlern. Du kannst den Warenkorb jetzt leeren und ihn kurz vor der Bestellung wiederherstellen."
+  },
+  "requestFailed": {
+    "message": "Cardmarket hat nicht geantwortet ($1). Bist du angemeldet?"
+  },
+  "restoreAsk": {
+    "message": "$1 Artikel von $2 Händlern in den Warenkorb legen?"
+  },
+  "abuseHint": {
+    "message": "Mach das erst kurz vor der Bestellung: Cardmarket warnt, dass Missbrauch des Warenkorbs zur Sperre führen kann. Bestellen tust du selbst, Conclave bestellt nie."
+  },
+  "restoreNow": {
+    "message": "In den Warenkorb"
+  },
+  "cancel": {
+    "message": "Abbrechen"
+  },
+  "noSeller": {
+    "message": "Dieser Schnappschuss nennt keinen Händler, also gibt es keine Angebotsseite, von der aus er gesendet werden kann."
+  },
+  "openingOffers": {
+    "message": "Öffne die Angebote von $1 (dort ist Cardmarkets Formular zum Hinzufügen) …"
+  },
+  "noForm": {
+    "message": "Kein Formular zum Hinzufügen auf dieser Seite. Öffne die Angebote eines Händlers und versuch es noch einmal."
+  },
+  "adding": {
+    "message": "Lege $1 Artikel hinein …"
+  },
+  "openingCart": {
+    "message": "Öffne deinen Warenkorb …"
+  },
+  "missingTitle": {
+    "message": "Nicht im Warenkorb ($1)"
+  },
+  "fewerTitle": {
+    "message": "Weniger Exemplare ($1)"
+  },
+  "fewerItem": {
+    "message": "$1 von $2"
+  },
+  "pricierTitle": {
+    "message": "Preis geändert ($1)"
+  },
+  "foreignTitle": {
+    "message": "Nicht auf Englisch ($1)"
+  },
+  "extraLine": {
+    "message": "$1 weitere Artikel im Warenkorb, die nicht in diesem Schnappschuss sind."
+  },
+  "cartTotal": {
+    "message": "Gesamt $1 (Versand $2)."
+  },
+  "restoredAll": {
+    "message": "Alle $1 Artikel sind im Warenkorb."
+  },
+  "restoredSome": {
+    "message": "$1 von $2 Artikeln sind im Warenkorb."
+  },
+  "checkOk": {
+    "message": "Der Warenkorb passt: alle $1 Artikel sind da."
+  },
+  "checkSome": {
+    "message": "$1 von $2 Artikeln sind im Warenkorb."
+  },
+  "missingHint": {
+    "message": "Fehlende hat der Händler vermutlich verkauft oder geändert."
+  },
+  "emptyAsk": {
+    "message": "Alle Artikel aus dem Warenkorb nehmen? Conclave speichert ihn vorher als Schnappschuss."
+  },
+  "emptyNow": {
+    "message": "Warenkorb leeren"
+  },
+  "noEmptyButton": {
+    "message": "Ich finde Cardmarkets Knopf „Remove all articles“ nicht."
+  },
+  "beforeEmptying": {
+    "message": "Vor dem Leeren, $1"
+  },
+  "emptying": {
+    "message": "Leere den Warenkorb … bitte bleib auf der Seite, bis sie neu geladen hat."
+  },
+  "emptyPartial": {
+    "message": "Noch $1 Artikel im Warenkorb: das Leeren hat mittendrin aufgehört. Klick noch einmal auf „Warenkorb leeren …“."
+  },
+  "emptied": {
+    "message": "Erledigt. Stell ihn unten kurz vor der Bestellung wieder her."
+  },
+  "emptiedKept": {
+    "message": "Erledigt. Was drin war, ist unten gespeichert."
+  },
+  "importHint": {
+    "message": "Füge einen Schnappschuss ein, den du mit „Kopieren“ kopiert hast."
+  },
+  "importPlaceholder": {
+    "message": "{\"conclave\": \"cardmarket-cart\", …}"
+  },
+  "importNow": {
+    "message": "Importieren"
+  },
+  "importNotJson": {
+    "message": "Das ist kein Schnappschuss (kein JSON)."
+  },
+  "importEmpty": {
+    "message": "Darin sind keine Artikel."
+  },
+  "importedName": {
+    "message": "Importiert am $1"
+  },
+  "imported": {
+    "message": "Importiert: $1 Artikel von $2 Händlern."
+  },
+  "copyFailed": {
+    "message": "Kopieren hat nicht geklappt. Erlaube die Zwischenablage für cardmarket.com und versuch es noch einmal."
+  },
+  "copiedPageInfo": {
+    "message": "Seiten-Info kopiert."
+  },
+  "deleted": {
+    "message": "„$1“ gelöscht."
+  },
+  "undo": {
+    "message": "Rückgängig"
+  },
+  "restoredSnapshot": {
+    "message": "Wieder da."
+  }
+}

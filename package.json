@@ -1,0 +1,14 @@
+{
+  "name": "conclave-browser-tool",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser extensions next to Conclave. The first one saves and restores a Cardmarket shopping cart.",
+  "scripts": {
+    "test": "node --test",
+    "messages": "node scripts/write-messages.mjs",
+    "e2e": "node scripts/e2e.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}
