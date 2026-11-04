@@ -79,6 +79,13 @@ keeps the new article numbers in the snapshot, so the next restore works without
 Not used yet: the edition filter `&idExpansions=<id>,<id>` (the ids are only in the live page's
 `select[name="idExpansions[]"]`, not in fetched HTML); the edition is matched from the slug instead.
 
-## Next step
+## Deck lists (a Conclave deck as the target)
 
-A Conclave deck's buy list as the target: which of the deck's cards are still missing from the cart.
+In Conclave, a deck's Einkaufsliste copies „N Name“ lines for Cardmarket (English Oracle names). **Add a deck list …**
+keeps such a list in the extension (`chrome.storage.local`, key `targets`); **Compare** opens the cart and shows how
+many of the deck's cards are in it and which are still missing, with **Copy missing for a Wants list**.
+`parseTargetList()` also takes "2x Name", bare names and Moxfield/Arena extras like "(MH2) 123 *F*". Cards are
+matched by `cardKey()`: the front face's slug without Cardmarket's "-V1" marks, so a German cart page, basics in
+any version and double-faced cards (Cardmarket's slug names both faces) match. No request goes to Cardmarket for it.
+
+Later, maybe: read the deck straight from the Conclave desktop app instead of pasting it.

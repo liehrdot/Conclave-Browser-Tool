@@ -128,6 +128,60 @@
   "pricierTitle": {
     "message": "Preis geändert ($1)"
   },
+  "targets": {
+    "message": "Decklisten"
+  },
+  "noTargets": {
+    "message": "Füge die Einkaufsliste eines Decks aus Conclave ein, dann siehst du, welche Karten noch im Warenkorb fehlen."
+  },
+  "addTarget": {
+    "message": "Deckliste hinzufügen …"
+  },
+  "targetHint": {
+    "message": "In Conclave: Deck öffnen › ⋯ › Einkaufsliste › „Für Cardmarket kopieren“, dann hier einfügen. Zeilen wie „1 Sol Ring“, eine Karte pro Zeile."
+  },
+  "targetName": {
+    "message": "Name der Liste"
+  },
+  "targetNamePlaceholder": {
+    "message": "z. B. Zurgo"
+  },
+  "saveTarget": {
+    "message": "Liste speichern"
+  },
+  "targetEmpty": {
+    "message": "Darin sind keine Karten. Eine Karte pro Zeile, z. B. „1 Sol Ring“."
+  },
+  "targetSaved": {
+    "message": "Gespeichert: $1 Karten. Mit „Vergleichen“ prüfst du deinen Warenkorb dagegen."
+  },
+  "targetFacts": {
+    "message": "$1 Karten"
+  },
+  "untitledDeck": {
+    "message": "Deckliste"
+  },
+  "targetAll": {
+    "message": "Alle $1 Karten von „$2“ sind im Warenkorb."
+  },
+  "targetSome": {
+    "message": "$1 von $2 Karten von „$3“ sind im Warenkorb."
+  },
+  "targetMissingTitle": {
+    "message": "Fehlen noch ($1)"
+  },
+  "targetHave": {
+    "message": "$1 von $2 im Warenkorb"
+  },
+  "targetExtra": {
+    "message": "$1 Artikel im Warenkorb stehen nicht auf dieser Liste."
+  },
+  "copyMissing": {
+    "message": "Fehlende für eine Wants-Liste kopieren"
+  },
+  "copiedMissing": {
+    "message": "Kopiert. Bei Cardmarket: Wants › neue Liste › einfügen, dann sucht der Shopping Wizard die Händler."
+  },
   "findAgain": {
     "message": "$1 erneut suchen"
   },

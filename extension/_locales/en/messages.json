@@ -128,6 +128,60 @@
   "pricierTitle": {
     "message": "Price changed ($1)"
   },
+  "targets": {
+    "message": "Deck lists"
+  },
+  "noTargets": {
+    "message": "Paste a deck's buy list from Conclave to see which of its cards are still missing from the cart."
+  },
+  "addTarget": {
+    "message": "Add a deck list …"
+  },
+  "targetHint": {
+    "message": "In Conclave: open the deck › ⋯ › Einkaufsliste › “Für Cardmarket kopieren”, then paste it here. “1 Sol Ring” lines, one card each."
+  },
+  "targetName": {
+    "message": "Name of the list"
+  },
+  "targetNamePlaceholder": {
+    "message": "e.g. Zurgo"
+  },
+  "saveTarget": {
+    "message": "Save list"
+  },
+  "targetEmpty": {
+    "message": "No cards found in it. One card per line, like “1 Sol Ring”."
+  },
+  "targetSaved": {
+    "message": "Saved: $1 cards. Click “Compare” to check your cart against it."
+  },
+  "targetFacts": {
+    "message": "$1 cards"
+  },
+  "untitledDeck": {
+    "message": "Deck list"
+  },
+  "targetAll": {
+    "message": "All $1 cards of “$2” are in your cart."
+  },
+  "targetSome": {
+    "message": "$1 of $2 cards of “$3” are in your cart."
+  },
+  "targetMissingTitle": {
+    "message": "Still missing ($1)"
+  },
+  "targetHave": {
+    "message": "$1 of $2 in the cart"
+  },
+  "targetExtra": {
+    "message": "$1 articles in the cart aren't on this list."
+  },
+  "copyMissing": {
+    "message": "Copy missing for a Wants list"
+  },
+  "copiedMissing": {
+    "message": "Copied. On Cardmarket: Wants › new list › paste, then let the Shopping Wizard find sellers."
+  },
   "findAgain": {
     "message": "Look for $1 again"
   },

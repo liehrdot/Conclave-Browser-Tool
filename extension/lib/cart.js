@@ -314,6 +314,50 @@
     return { ...snapshot, items, totals: { ...snapshot.totals, ...summary(items) } };
   }
 
+  // ---- a deck's card list as the target (Conclave's "Für Cardmarket kopieren": "N Name" lines, English names) ----
+  // Also takes "Nx Name", bare names, and Moxfield/Arena extras like "(MH2) 123 *F*". Cards are matched by the
+  // product URL's slug, which is English on every language's pages, so a German cart page still matches.
+  const TARGET_MAX = 250;
+  function parseTargetList(text) {
+    const cards = new Map();
+    for (const raw of String(text || "").split(/\r?\n/).slice(0, 1000)) {
+      // Spaces collapsed first, so each pattern below has one way to match (no backtracking).
+      const line = raw.replace(/\s+/g, " ").trim().replace(/ \([A-Z0-9]{2,6}\) [\w-]+(?: \*[A-Z]+\*)?$/, "").replace(/ \*[A-Z]+\*$/, "");
+      if (!line || /^(\/\/|#)/.test(line) || /^(commander|deck|sideboard|maybeboard|mainboard)\s*:?$/i.test(line)) continue;
+      const m = line.match(/^(\d{1,3})(?: ?x)? (.+)$/i);
+      const qty = m ? Number(m[1]) : 1, name = (m ? m[2] : line).trim();
+      if (!qty || !name) continue;
+      const key = cardKey(name);
+      const had = cards.get(key);
+      cards.set(key, { name: had ? had.name : name, qty: (had ? had.qty : 0) + qty });
+      if (cards.size >= TARGET_MAX) break;
+    }
+    return [...cards.values()];
+  }
+  // one key per card: the front face's slug, lowercased, without Cardmarket's "-V1" variant marks
+  const cardKey = (nameOrSlug) => baseSlug(slugOf(String(nameOrSlug || "").replace(/-/g, " "))).toLowerCase();
+  function matchTarget(cards, cart) {
+    const inCart = new Map();
+    for (const i of cart.items) {
+      const k = cardKey(i.slug ? i.slug.replace(/-/g, " ") : i.name);
+      inCart.set(k, (inCart.get(k) || 0) + (i.qty || 1));
+    }
+    // a double-faced card: Cardmarket's slug may name both faces ("Delver-of-Secrets-Insectile-Aberration")
+    const have = (key) => inCart.get(key) || [...inCart.entries()].filter(([k]) => k.startsWith(key + "-")).reduce((s, [, n]) => s + n, 0);
+    const done = [], missing = [], used = new Set();
+    for (const c of cards) {
+      const key = cardKey(c.name);
+      const n = have(key);
+      for (const k of inCart.keys()) if (k === key || k.startsWith(key + "-")) used.add(k);
+      if (n >= c.qty) done.push({ ...c, have: n });
+      else missing.push({ ...c, have: n, need: c.qty - n });
+    }
+    const extra = cart.items.filter((i) => !used.has(cardKey(i.slug ? i.slug.replace(/-/g, " ") : i.name)));
+    return { done, missing, extra, cards: cards.reduce((s, c) => s + c.qty, 0), missingCards: missing.reduce((s, c) => s + c.need, 0) };
+  }
+  // the missing cards as lines for a Cardmarket Wants list (and the Shopping Wizard)
+  const wantsText = (missing) => missing.map((c) => `${c.need} ${c.name}`).join("\n");
+
   // ---- comparing a cart with a snapshot ----
   function diffCart(snapshot, cart) {
     const inCart = new Map(cart.items.map((i) => [i.id, i]));
@@ -363,7 +407,7 @@
   root.ConclaveCart = {
     BASE, CART_PATH, MIN_GAP_MS, isChallenge, parsePrice, slugOf, productOf, sellerOf, parseOffers, addForm, parseCart,
     cartTotals, removeAllButton, onEnglish, summary, makeSnapshot, sameItems, exportSnapshot, importSnapshot, restoreFields, formSeller,
-    offersUrl, diffCart, pageInfo, searchUrls, pickOffer, replaceItems,
+    offersUrl, diffCart, pageInfo, searchUrls, pickOffer, replaceItems, parseTargetList, matchTarget, wantsText,
   };
   if (typeof module === "object" && module.exports) module.exports = root.ConclaveCart;
 })(typeof globalThis !== "undefined" ? globalThis : this);
