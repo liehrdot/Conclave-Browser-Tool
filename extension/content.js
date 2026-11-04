@@ -200,14 +200,15 @@
   }
   // The doc's trick: Cardmarket's own add-to-cart form (its script is attached), its article fields swapped for all
   // of the snapshot's, then its own button clicked. One request for every article, from every seller.
-  async function sendRestore(s) {
+  async function sendRestore(s, only = null) {
+    const items = only ? s.items.filter((i) => only.includes(i.id)) : s.items;
     const form = C.addForm(document);
     if (!form) { await setJob(null); return say("error", t("noForm")); }
     form.querySelectorAll('input[name^="idArticle"], input[name^="amount"]').forEach((i) => i.remove());
-    for (const [name, value] of C.restoreFields(s.items)) form.append(el("input", { type: "hidden", name, value }));
+    for (const [name, value] of C.restoreFields(items)) form.append(el("input", { type: "hidden", name, value }));
     const submit = form.querySelector('button[type="submit"], input[type="submit"], button:not([type])');
     if (!submit) { await setJob(null); return say("error", t("noForm")); }
-    say("info", t("adding", s.totals.articles));
+    say("info", t("adding", C.summary(items).articles));
     await gap();
     submit.click();
     await answered();
@@ -248,10 +249,64 @@
       group(t("fewerTitle", d.fewer.length), d.fewer, (i) => line(i, ` · ${t("fewerItem", i.have, i.qty)}`)),
       group(t("pricierTitle", d.pricier.length), d.pricier, (i) => line(i, ` → ${eur(i.now)}`)),
       group(t("foreignTitle", d.foreign.length), d.foreign, (i) => line(i, ` · ${i.lang}`)),
-      d.extra.length ? el("p", { class: "muted" }, t("extraLine", d.extra.length)) : null);
+      d.extra.length ? el("p", { class: "muted" }, t("extraLine", d.extra.length)) : null,
+      searchable(d.missing).length ? el("div", { class: "actions" },
+        button(t("findAgain", searchable(d.missing).length), () => findAgain(s, searchable(d.missing)), "primary small"),
+        el("span", { class: "muted" }, t("findAgainHint"))) : null);
     const total = cart.totals.total != null ? ` ${t("cartTotal", eur(cart.totals.total), eur(cart.totals.shipping))}` : "";
     if (d.ok) say("ok", (restored ? t("restoredAll", d.found.length) : t("checkOk", d.found.length)) + total, d.extra.length || d.foreign.length ? more : null);
     else say("warn", t(restored ? "restoredSome" : "checkSome", d.found.length, s.items.length) + " " + t("missingHint") + total, more);
+  }
+
+  // ---- finding missing articles again at the same seller (one request each, MIN_GAP_MS apart) ----
+  const searchable = (items) => items.filter((i) => i.seller && (i.slug || i.name));
+  async function findAgain(s, missing) {
+    const found = [], lost = [], taken = new Set();
+    for (const [n, item] of missing.entries()) {
+      say("info", t("searching", n + 1, missing.length, item.name || item.slug));
+      let offer = null;
+      for (const url of C.searchUrls(item)) {
+        let html;
+        try {
+          await gap();
+          const res = await fetch(url, { credentials: "include" });
+          html = await res.text();
+          if (!res.ok) throw new Error(`http-${res.status}`);
+        } catch (e) { return fail(e); }
+        if (C.isChallenge(html)) return say("warn", t("challenge"));
+        const offers = C.parseOffers(new DOMParser().parseFromString(html, "text/html"), url).filter((o) => !taken.has(o.id));
+        offer = C.pickOffer(item, offers);
+        if (offer) break;
+      }
+      if (offer) { taken.add(offer.id); found.push({ old: item.id, item, offer }); }
+      else lost.push(item);
+    }
+    showFound(s, found, lost);
+  }
+  function showFound(s, found, lost) {
+    const line = (f) => el("li", {}, el("b", {}, f.item.name || f.offer.name),
+      el("span", { class: "muted" }, ` · ${f.item.seller} · ${eur(f.item.price)} → `),
+      el("span", { class: f.offer.pricier ? "pricier" : "muted" }, eur(f.offer.price)),
+      el("span", { class: "muted" }, ` · ${[f.offer.cond, f.offer.lang, f.offer.set.replace(/-/g, " ")].filter(Boolean).join(" · ")}`));
+    const more = el("section", { class: "diff" },
+      found.length ? [el("h3", {}, t("foundTitle", found.length)), el("ul", { class: "small-list" }, found.map(line))] : null,
+      lost.length ? [el("h3", {}, t("lostTitle", lost.length)), el("ul", { class: "small-list" },
+        lost.map((i) => el("li", {}, el("b", {}, i.name || `#${i.id}`), el("span", { class: "muted" }, ` · ${i.seller}`))))] : null,
+      found.length ? el("div", { class: "actions" },
+        button(t("addFound", found.length), () => addFound(s, found), "primary")) : null);
+    if (!found.length) return say("warn", t("noneFound"), more);
+    say(found.some((f) => f.offer.pricier) ? "warn" : "ok", t(found.some((f) => f.offer.pricier) ? "foundPricier" : "foundAll", found.length), more);
+  }
+  // the snapshot keeps the new article numbers, so the next restore works without searching
+  async function addFound(s, found) {
+    const updated = C.replaceItems(s, found);
+    const list = await snapshots();
+    await saveSnapshots(list.map((x) => (x.id === s.id ? updated : x)));
+    const only = found.map((f) => f.offer.id);
+    await setJob({ type: "restore", id: s.id, only });
+    if (C.addForm(document)) return sendRestore(updated, only);
+    say("info", t("openingOffers", found[0].item.seller));
+    await go(C.offersUrl(found[0].item.seller));
   }
 
   // ---- emptying ----
@@ -348,7 +403,7 @@
     const s = j.id ? (await snapshots()).find((x) => x.id === j.id) : null;
     if (j.id && !s) { await setJob(null); return; }
     if (j.type === "restore") {
-      if (C.addForm(document)) return sendRestore(s);
+      if (C.addForm(document)) return sendRestore(s, j.only || null);
       await setJob(null);
       return say("error", t("noForm"));
     }

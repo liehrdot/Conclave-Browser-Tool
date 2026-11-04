@@ -18,7 +18,7 @@ npm run e2e         # the extension in Chromium against tests/fixtures, screensh
 ## Layout
 
 - `extension/lib/cart.js`: all rules without browser APIs (reading offer and cart pages, Cloudflare check, snapshots,
-  import/export, the restore's field pairs, compare). Sets `globalThis.ConclaveCart`, `require()`-able for tests.
+  import/export, the restore's field pairs, compare, finding a missing article again). Sets `globalThis.ConclaveCart`, `require()`-able for tests.
 - `extension/content.js`: the panel (shadow DOM, `panel.css`) and the actions; steps across page loads as a `job` in
   `chrome.storage.local`. `extension/background.js`: the toolbar button.
 - `tests/fixtures/`: stand-in Cardmarket pages (shaped after Flo's notes; the real cart markup is still unverified).

@@ -62,10 +62,23 @@ So the extension never navigates after the click, and checks the reloaded cart: 
 Import also takes the short form from Flo's notes: `{"PapaSven": ["2183623163", "2102303005x6"]}` (`x6` = 6 copies).
 Article ids stay valid until the seller changes or sells the offer.
 
-## Next steps
+## Finding an article again
 
-- Find an offer again when an article is gone or its price changed: the seller's offers by name
-  (`?name=<card>`, `&sortBy=price_asc` for basics, `&idExpansions=<id>,<id>` for editions: the ids are in the live
-  page's `select[name="idExpansions[]"]`, not in fetched HTML), matched by card slug, price and language, then
-  NM › EX › GD, `setHint`.
-- A Conclave deck's buy list as the target: which of the deck's cards are still missing from the cart.
+An article number dies when the seller sells the offer or changes it (sellers' stock tools often re-list after a
+price update). After a compare, **Look for N again** asks each missing article's seller for that card:
+`/en/Magic/Users/<seller>/Offers/Singles?name=<name>` (`&sortBy=price_asc` for basics, whose cheap offers sit behind
+"Mountain Goat" and co.), one request every 2.5 s, a second one with the name's longest word when the first finds
+nothing. The name comes from the product URL (`Pia-Aether-Ascetic`), which is English on every language's pages,
+not from the shown name (`Pia, Äther-Asketin` on /de/).
+
+`pickOffer()` takes only the same card (the exact slug, so `…-V1` variants don't mix), the same language and a
+condition at least as good, then prefers the same edition, the same price, the cheapest and the better condition.
+A higher price is marked. **Put N into cart** sends only the found articles with the same one-request trick and
+keeps the new article numbers in the snapshot, so the next restore works without searching.
+
+Not used yet: the edition filter `&idExpansions=<id>,<id>` (the ids are only in the live page's
+`select[name="idExpansions[]"]`, not in fetched HTML); the edition is matched from the slug instead.
+
+## Next step
+
+A Conclave deck's buy list as the target: which of the deck's cards are still missing from the cart.

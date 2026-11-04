@@ -267,6 +267,53 @@
   }
   const offersUrl = (seller) => `${BASE}/en/Magic/Users/${encodeURIComponent(seller)}/Offers/Singles`;
 
+  // ---- finding an article again (sold, or re-listed by the seller under a new article number) ----
+  // Cardmarket's product URLs use the English name on every language's pages ("Pia-Aether-Ascetic"), so the search
+  // asks the seller's offers for that name and matches the slug, never the shown (maybe German) name.
+  const BASICS = /^(Plains|Island|Swamp|Mountain|Forest|Wastes|Snow-Covered-\w+)$/i;
+  const baseSlug = (slug) => String(slug || "").replace(/-V-?\d+$/i, "");
+  const CONDITION_RANK = { MT: 0, NM: 1, EX: 2, GD: 3, LP: 4, PL: 5, PO: 6 };
+  const norm = (s) => String(s || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  // the request(s) for one article: its name, then (if that finds nothing) its longest word
+  function searchUrls(item) {
+    const name = nameFromSlug(baseSlug(item.slug)) || item.name;
+    const url = (q) => {
+      const u = new URL(offersUrl(item.seller));
+      u.searchParams.set("name", q);
+      if (BASICS.test(baseSlug(item.slug))) u.searchParams.set("sortBy", "price_asc");  // cheap basics sit after "Mountain Goat" & co
+      return u.href;
+    };
+    const longest = name.split(/\s+/).sort((a, b) => b.length - a.length)[0] || "";
+    return longest && longest !== name && longest.length >= 4 ? [url(name), url(longest)] : [url(name)];
+  }
+  // The best offer for a missing article: the same card (slug, so "…-V1" variants don't mix), the same language,
+  // a condition at least as good; then the same edition, the same price, the cheapest, the better condition.
+  function pickOffer(item, offers) {
+    const rank = (c) => (c in CONDITION_RANK ? CONDITION_RANK[c] : 9);
+    const fits = offers.filter((o) => o.id !== item.id
+      && (item.slug ? o.slug === item.slug : norm(o.name) === norm(item.name))
+      && (!item.lang || !o.lang || o.lang === item.lang)
+      && (!(item.cond in CONDITION_RANK) || rank(o.cond) <= rank(item.cond)));
+    const score = (o) => [o.set === item.set ? 0 : 1, sameMoney(o.price, item.price) ? 0 : 1, o.price == null ? Infinity : o.price, rank(o.cond)];
+    fits.sort((a, b) => {
+      const x = score(a), y = score(b);
+      for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i];
+      return 0;
+    });
+    const best = fits[0];
+    if (!best) return null;
+    return { ...best, qty: Math.min(item.qty || 1, best.max || 1), pricier: best.price != null && item.price != null && best.price > item.price + 0.005 };
+  }
+  // the snapshot with the found offers in place of the old articles (same seller, new article number)
+  function replaceItems(snapshot, found) {
+    const by = new Map(found.map((f) => [f.old, f.offer]));
+    const items = snapshot.items.map((i) => {
+      const o = by.get(i.id);
+      return o ? { ...i, id: o.id, set: o.set || i.set, slug: o.slug || i.slug, price: o.price, cond: o.cond || i.cond, lang: o.lang || i.lang, qty: o.qty } : i;
+    });
+    return { ...snapshot, items, totals: { ...snapshot.totals, ...summary(items) } };
+  }
+
   // ---- comparing a cart with a snapshot ----
   function diffCart(snapshot, cart) {
     const inCart = new Map(cart.items.map((i) => [i.id, i]));
@@ -316,7 +363,7 @@
   root.ConclaveCart = {
     BASE, CART_PATH, MIN_GAP_MS, isChallenge, parsePrice, slugOf, productOf, sellerOf, parseOffers, addForm, parseCart,
     cartTotals, removeAllButton, onEnglish, summary, makeSnapshot, sameItems, exportSnapshot, importSnapshot, restoreFields, formSeller,
-    offersUrl, diffCart, pageInfo,
+    offersUrl, diffCart, pageInfo, searchUrls, pickOffer, replaceItems,
   };
   if (typeof module === "object" && module.exports) module.exports = root.ConclaveCart;
 })(typeof globalThis !== "undefined" ? globalThis : this);

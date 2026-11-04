@@ -128,6 +128,33 @@
   "pricierTitle": {
     "message": "Preis geändert ($1)"
   },
+  "findAgain": {
+    "message": "$1 erneut suchen"
+  },
+  "findAgainHint": {
+    "message": "bei denselben Händlern, alle paar Sekunden eine Anfrage"
+  },
+  "searching": {
+    "message": "Suche $3 ($1 von $2) …"
+  },
+  "foundTitle": {
+    "message": "Wiedergefunden ($1)"
+  },
+  "lostTitle": {
+    "message": "Nicht mehr im Angebot ($1)"
+  },
+  "addFound": {
+    "message": "$1 in den Warenkorb"
+  },
+  "foundAll": {
+    "message": "$1 bei denselben Händlern wiedergefunden: gleiche Karte, Sprache und gleicher oder besserer Zustand."
+  },
+  "foundPricier": {
+    "message": "$1 wiedergefunden. Manche kosten jetzt mehr (markiert)."
+  },
+  "noneFound": {
+    "message": "Keine davon bieten diese Händler noch an."
+  },
   "foreignTitle": {
     "message": "Nicht auf Englisch ($1)"
   },

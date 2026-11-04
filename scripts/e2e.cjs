@@ -10,7 +10,8 @@ const root = path.join(__dirname, "..");
 const fixture = (n) => fs.readFileSync(path.join(root, "tests/fixtures", n), "utf8");
 const out = process.argv[2] || path.join(root, "dist/screens");
 const scheme = process.argv[3] || "light";
-const SOLD = "2164329369";  // Divine Visitation: "sold" while the cart was empty, so the check has something to report
+const SOLD = "2164329369";
+const RELISTED = "2199000005";  // tests/fixtures/offers-search.html: the same Divine Visitation under a new article number  // Divine Visitation: "sold" while the cart was empty, so the check has something to report
 
 (async () => {
   fs.mkdirSync(out, { recursive: true });
@@ -25,6 +26,10 @@ const SOLD = "2164329369";  // Divine Visitation: "sold" while the cart was empt
     requests++;
     if (url.pathname === "/__test/add") {
       added = [...new URLSearchParams(req.postData()).keys()].filter((k) => k.startsWith("idArticle")).map((k) => k.match(/\d+/)[0]);
+      if (added.includes(RELISTED)) {  // the seller's new article for the sold one
+        cart = full.replace(`data-article-id="${SOLD}"`, `data-article-id="${RELISTED}"`).replace(`name="idArticle" value="${SOLD}"`, `name="idArticle" value="${RELISTED}"`).replace("7,67 €", "7,90 €");
+        return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+      }
       // what Cardmarket would do: the sold one doesn't come back
       cart = full.replace(new RegExp(`<tr data-article-id="${SOLD}">[\\s\\S]*?</tr>`), "")
         .replace("9 Articles", "8 Articles").replace("74,18 €", "66,51 €").replace("77,68 €", "70,01 €");
@@ -34,6 +39,7 @@ const SOLD = "2164329369";  // Divine Visitation: "sold" while the cart was empt
       if (req.method() === "POST") { cart = fixture("cart-empty.html"); return route.fulfill({ status: 200, contentType: "text/html", body: cart }); }
       return route.fulfill({ status: 200, contentType: "text/html", body: cart });
     }
+    if (url.pathname.includes("/Offers/Singles") && url.searchParams.get("name")) return route.fulfill({ status: 200, contentType: "text/html", body: fixture("offers-search.html") });
     if (url.pathname.includes("/Offers/Singles")) return route.fulfill({ status: 200, contentType: "text/html", body: fixture("offers.html") });
     return route.fulfill({ status: 404, body: "" });
   });
@@ -79,6 +85,17 @@ const SOLD = "2164329369";  // Divine Visitation: "sold" while the cart was empt
   check(Date.now() - started >= 2500, "waits at least 2.5 s between its own requests");
   check((await note()).includes("3 of 4 articles"), "the check names the missing article");
   await shot("6-restored");
+
+  await click("Look for 1 again");
+  await panel.locator(".note.warn, .note.ok").filter({ hasText: "Found" }).waitFor({ timeout: 15000 });
+  check((await panel.locator(".diff").textContent()).includes("€7.90"), "the re-listed Divine Visitation is found, marked as more expensive");
+  await shot("7-found");
+  await click("Put 1 into cart");
+  await page.waitForURL(/ShoppingCart/, { timeout: 30000 });
+  await panel.locator(".note.ok").waitFor({ timeout: 15000 });
+  check(added.length === 1 && added[0] === RELISTED, "only the found article was sent");
+  check((await note()).includes("All 4 articles"), "the cart matches the updated snapshot");
+  await shot("8-complete");
   console.log(`requests to the stand-in cardmarket.com: ${requests}`);
   await ctx.close();
 })().catch((e) => { console.error(e); process.exit(1); });
