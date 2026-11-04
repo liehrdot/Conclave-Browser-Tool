@@ -23,6 +23,8 @@
   const set = (key, value) => store.set({ [key]: value });
   const snapshots = () => get("snapshots", []);
   const saveSnapshots = (list) => set("snapshots", list);
+  const targets = () => get("targets", []);  // deck lists pasted from Conclave: {id, name, created, cards: [{name, qty}]}
+  const saveTargets = (list) => set("targets", list);
   async function job() {
     const j = await get("job", null);
     return j && Date.now() - j.at < JOB_FOR ? j : null;
@@ -109,6 +111,7 @@
     host.hidden = !open;
     if (!open) return;
     const list = await snapshots();
+    const decks = await targets();
     const here = onCart() ? C.parseCart(document) : null;
     panel.replaceChildren(...[
       el("header", {},
@@ -121,6 +124,9 @@
       confirmBox,
       el("h2", {}, t("snapshots")),
       list.length ? el("ul", { class: "list" }, list.map((s) => snapshotRow(s, here && here.empty))) : el("p", { class: "muted" }, t("noSnapshots")),
+      el("h2", {}, t("targets")),
+      decks.length ? el("ul", { class: "list" }, decks.map(targetRow)) : el("p", { class: "muted" }, t("noTargets")),
+      el("div", { class: "actions" }, button(t("addTarget"), targetBox, "quiet small")),
       el("footer", {},
         button(t("import"), importBox, "quiet"),
         button(t("emptyCart"), askEmpty, "quiet danger"),
@@ -395,6 +401,63 @@
     render();
   }
 
+  // ---- deck lists: which of a deck's cards are still missing from the cart ----
+  function targetRow(d) {
+    return el("li", {},
+      el("div", { class: "row-head" }, el("b", {}, d.name || t("untitledDeck")), el("span", { class: "muted" }, date(d.created))),
+      el("p", { class: "muted" }, t("targetFacts", d.cards.reduce((n, c) => n + c.qty, 0))),
+      el("div", { class: "actions" },
+        button(t("check"), () => compareTarget(d), "small"),
+        button(t("delete"), () => removeTarget(d), "quiet small danger")));
+  }
+  function targetBox() {
+    note = null;
+    details = null;
+    const name = el("input", { class: "rename", placeholder: t("targetNamePlaceholder"), "aria-label": t("targetName"), "data-focus": true });
+    const area = el("textarea", { rows: 6, placeholder: "1 Sol Ring\n1 Arcane Signet\n…", "aria-label": t("addTarget") });
+    confirmBox = el("section", { class: "confirm" },
+      el("p", {}, t("targetHint")), name, area,
+      el("div", { class: "actions" },
+        button(t("saveTarget"), async () => {
+          const cards = C.parseTargetList(area.value);
+          if (!cards.length) return say("error", t("targetEmpty"));
+          const d = { id: `d${Date.now().toString(36)}`, name: name.value.trim().slice(0, 80), created: new Date().toISOString(), cards };
+          await saveTargets([d, ...(await targets())]);
+          say("ok", t("targetSaved", cards.reduce((n, c) => n + c.qty, 0)));
+        }, "primary"),
+        button(t("cancel"), () => { confirmBox = null; render(); })));
+    show();
+  }
+  async function compareTarget(d) {
+    if (!onCart()) {
+      await setJob({ type: "target", list: d.id });
+      say("info", t("openingCart"));
+      return go(C.BASE + C.CART_PATH);
+    }
+    showTarget(d, C.parseCart(document));
+  }
+  function showTarget(d, cart) {
+    const m = C.matchTarget(d.cards, cart);
+    const name = d.name || t("untitledDeck");
+    const more = el("section", { class: "diff" },
+      m.missing.length ? [el("h3", {}, t("targetMissingTitle", m.missingCards)),
+        el("ul", { class: "small-list" }, m.missing.map((c) => el("li", {}, `${c.need} `, el("b", {}, c.name),
+          c.have ? el("span", { class: "muted" }, ` · ${t("targetHave", c.have, c.qty)}`) : null))),
+        el("div", { class: "actions" }, button(t("copyMissing"), () => copy(C.wantsText(m.missing), t("copiedMissing")), "small"))] : null,
+      m.extra.length ? el("p", { class: "muted" }, t("targetExtra", m.extra.length)) : null);
+    if (!m.missing.length) say("ok", t("targetAll", m.cards, name), m.extra.length ? more : null);
+    else say("warn", t("targetSome", m.cards - m.missingCards, m.cards, name), more);
+  }
+  async function removeTarget(d) {
+    await saveTargets((await targets()).filter((x) => x.id !== d.id));
+    say("ok", t("deleted", d.name || t("untitledDeck")));
+    details = el("div", { class: "actions" }, button(t("undo"), async () => {
+      await saveTargets([d, ...(await targets())].sort((a, b) => b.created.localeCompare(a.created)));
+      say("ok", t("restoredSnapshot"));
+    }, "small"));
+    render();
+  }
+
   // ---- carrying on a job after a page load ----
   async function resume() {
     const j = await job();
@@ -410,6 +473,10 @@
     if (!onCart()) return;  // the cart page didn't open (yet): leave the job for it
     await setJob(null);
     if (j.type === "check") return showDiff(s, C.parseCart(document), j.restored);
+    if (j.type === "target") {
+      const d = (await targets()).find((x) => x.id === j.list);
+      return d ? showTarget(d, C.parseCart(document)) : undefined;
+    }
     if (j.type === "empty") return askEmpty();
     if (j.type === "emptied") {
       const left = C.parseCart(document).items.length;

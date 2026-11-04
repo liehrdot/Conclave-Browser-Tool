@@ -96,6 +96,16 @@ const RELISTED = "2199000005";  // tests/fixtures/offers-search.html: the same D
   check(added.length === 1 && added[0] === RELISTED, "only the found article was sent");
   check((await note()).includes("All 4 articles"), "the cart matches the updated snapshot");
   await shot("8-complete");
+
+  await click("Add a deck list …");
+  await panel.locator(".confirm input").fill("Zurgo");
+  await panel.locator(".confirm textarea").fill("1 Hero of Bladehold\n1 Divine Visitation\n6 Mountain\n1 Sheoldred, the Apocalypse\n1 Sol Ring\n1 Arcane Signet");
+  await click("Save list");
+  await panel.locator(".list").nth(1).getByRole("button", { name: "Compare", exact: true }).click();
+  await panel.locator(".note.warn").waitFor();
+  check((await note()).includes("9 of 11 cards of “Zurgo”"), "the deck list shows what's still missing from the cart");
+  check((await panel.locator(".diff").textContent()).includes("Sol Ring"), "Sol Ring is listed as missing");
+  await shot("9-deck-list");
   console.log(`requests to the stand-in cardmarket.com: ${requests}`);
   await ctx.close();
 })().catch((e) => { console.error(e); process.exit(1); });

@@ -207,3 +207,34 @@ test("found offers replace the old articles in the snapshot", () => {
   assert.equal(u.totals.value, 3.5);
   assert.equal(s.items[1].id, "2");  // the old snapshot object stays as it was
 });
+
+test("a deck list from Conclave is read line by line, Moxfield/Arena extras too", () => {
+  const cards = C.parseTargetList("1 Sol Ring\n2x Arcane Signet\n\nCommander\n// a note\n1 Delver of Secrets // Insectile Aberration (MID) 47 *F*\nTocasia's Welcome\n1 sol ring");
+  assert.deepEqual(cards, [
+    { name: "Sol Ring", qty: 2 }, { name: "Arcane Signet", qty: 2 },
+    { name: "Delver of Secrets // Insectile Aberration", qty: 1 }, { name: "Tocasia's Welcome", qty: 1 },
+  ]);
+  assert.deepEqual(C.parseTargetList("nothing here\n\n"), [{ name: "nothing here", qty: 1 }]);
+  assert.deepEqual(C.parseTargetList(""), []);
+});
+
+test("the cart is matched against a deck list by the English slug, so German cart pages match too", () => {
+  const cards = C.parseTargetList("1 Hero of Bladehold\n6 Mountain\n1 Sheoldred, the Apocalypse\n2 Sol Ring\n1 Pia, Aether Ascetic");
+  const cart = C.parseCart(page("cart.html"));  // Hero, Divine Visitation, 6 Mountain (V.2), Sheoldred
+  cart.items.push({ id: "5", slug: "Pia-Aether-Ascetic", name: "Pia, Äther-Asketin", qty: 1 });
+  const m = C.matchTarget(cards, cart);
+  assert.deepEqual(m.done.map((c) => c.name), ["Hero of Bladehold", "Mountain", "Sheoldred, the Apocalypse", "Pia, Aether Ascetic"]);
+  assert.deepEqual(m.missing, [{ name: "Sol Ring", qty: 2, have: 0, need: 2 }]);
+  assert.deepEqual(m.extra.map((i) => i.slug), ["Divine-Visitation"]);
+  assert.equal(m.cards, 11);
+  assert.equal(m.missingCards, 2);
+  assert.equal(C.wantsText(m.missing), "2 Sol Ring");
+});
+
+test("a double-faced card matches Cardmarket's slug with both faces, and fewer copies count as missing", () => {
+  const m = C.matchTarget(C.parseTargetList("1 Delver of Secrets // Insectile Aberration\n3 Island"),
+    { items: [{ slug: "Delver-of-Secrets-Insectile-Aberration", qty: 1 }, { slug: "Island-V1", qty: 2 }] });
+  assert.deepEqual(m.done.map((c) => c.name), ["Delver of Secrets // Insectile Aberration"]);
+  assert.deepEqual(m.missing.map((c) => [c.name, c.have, c.need]), [["Island", 2, 1]]);
+  assert.deepEqual(m.extra, []);
+});

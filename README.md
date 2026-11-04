@@ -13,6 +13,8 @@ aren't held in your cart for days.
 - **Compare**: shows what is missing (sold or changed by the seller), has fewer copies, a new price or isn't English.
 - **Look for N again**: finds a missing card at the same seller (same card, language, condition or better) and puts it in.
 - **Empty cart …**: asks first, saves the cart as a snapshot, then clicks Cardmarket's "Remove all articles".
+- **Deck lists**: paste a deck's buy list from Conclave („Für Cardmarket kopieren“) and compare: which of its cards
+  are still missing from the cart, copied as a Wants list if you like.
 - **Copy / Import …**: a snapshot as text, to keep it or move it to another computer.
 
 What it never does: checkout or anything after it, getting around Cloudflare's browser check (it stops and lets you
