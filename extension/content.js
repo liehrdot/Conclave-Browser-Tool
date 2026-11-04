@@ -425,7 +425,7 @@
           await saveTargets([d, ...(await targets())]);
           say("ok", t("targetSaved", cards.reduce((n, c) => n + c.qty, 0)));
         }, "primary"),
-        button(t("cancel"), () => { confirmBox = null; render(); })));
+        button(t("cancel"), () => { confirmBox = null; void render(); })));
     show();
   }
   async function compareTarget(d) {
@@ -455,7 +455,7 @@
       await saveTargets([d, ...(await targets())].sort((a, b) => b.created.localeCompare(a.created)));
       say("ok", t("restoredSnapshot"));
     }, "small"));
-    render();
+    void render();
   }
 
   // ---- carrying on a job after a page load ----

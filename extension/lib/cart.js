@@ -321,9 +321,10 @@
   function parseTargetList(text) {
     const cards = new Map();
     for (const raw of String(text || "").split(/\r?\n/).slice(0, 1000)) {
-      const line = raw.replace(/\s+\([A-Z0-9]{2,6}\)\s+[\w-]+\s*(\*[A-Z]+\*)?\s*$/, "").replace(/\s+\*[A-Z]+\*\s*$/, "").trim();
+      // Spaces collapsed first, so each pattern below has one way to match (no backtracking).
+      const line = raw.replace(/\s+/g, " ").trim().replace(/ \([A-Z0-9]{2,6}\) [\w-]+(?: \*[A-Z]+\*)?$/, "").replace(/ \*[A-Z]+\*$/, "");
       if (!line || /^(\/\/|#)/.test(line) || /^(commander|deck|sideboard|maybeboard|mainboard)\s*:?$/i.test(line)) continue;
-      const m = line.match(/^(\d{1,3})\s*x?\s+(.+)$/i);
+      const m = line.match(/^(\d{1,3})(?: ?x)? (.+)$/i);
       const qty = m ? Number(m[1]) : 1, name = (m ? m[2] : line).trim();
       if (!qty || !name) continue;
       const key = cardKey(name);

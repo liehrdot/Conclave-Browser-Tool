@@ -216,6 +216,10 @@ test("a deck list from Conclave is read line by line, Moxfield/Arena extras too"
   ]);
   assert.deepEqual(C.parseTargetList("nothing here\n\n"), [{ name: "nothing here", qty: 1 }]);
   assert.deepEqual(C.parseTargetList(""), []);
+  // Extra spaces and "2 x" still read the same, and a long line of spaces stays fast.
+  assert.deepEqual(C.parseTargetList("2  x  Sol Ring\nCommand Tower   (C21)  263  *F*\n3 Forest *F*"),
+    [{ name: "Sol Ring", qty: 2 }, { name: "Command Tower", qty: 1 }, { name: "Forest", qty: 3 }]);
+  assert.equal(C.parseTargetList("1" + " ".repeat(50000) + "x").length, 1);
 });
 
 test("the cart is matched against a deck list by the English slug, so German cart pages match too", () => {
