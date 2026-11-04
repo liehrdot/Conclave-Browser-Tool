@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>PapaSven - Offers - Cardmarket</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 0; background: #f2f4f7; color: #222; }
+  .top { background: #012169; color: #fff; padding: 14px 24px; font-weight: 700; }
+  main { max-width: 1000px; margin: 24px auto; background: #fff; padding: 16px 24px; border-radius: 6px; }
+  .article-row { display: flex; gap: 16px; align-items: center; border-top: 1px solid #e3e3e3; padding: 10px 0; }
+  .article-row a { color: #012169; font-weight: 600; min-width: 220px; }
+  .badge { background: #2c8a3e; color: #fff; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+  .color-primary { color: #012169; font-weight: 700; }
+  #toast { position: fixed; top: 70px; right: 24px; }
+  .alert { background: #d1f0d6; padding: 10px 14px; border-radius: 6px; }
+</style></head>
+<body>
+<div class="top">Cardmarket · Users › PapaSven › Offers › Singles</div>
+<main>
+  <h1>PapaSven</h1>
+  <div id="stockRow2183623163" class="article-row">
+    <a href="/en/Magic/Products/Singles/Modern-Horizons/Hero-of-Bladehold?language=1">Hero of Bladehold</a>
+    <span class="badge">NM</span><span class="icon me-2" aria-label="English"></span>
+    <span class="color-primary">1,49 €</span><span>7</span>
+    <select><option>1</option><option>2</option><option>3</option></select>
+    <form method="POST" action="/en/Magic/Users/PapaSven/Offers/Singles" data-ajax-action="ShoppingCart_Add_AddArticlesFromUserOffers" data-ajax-callback="Offers.addArticlesCB">
+      <input type="hidden" name="__cmtkn" value="tok123">
+      <button type="submit" data-id-amount="2183623163">Put in cart</button>
+      <input type="hidden" name="idArticle[2183623163]" value="2183623163">
+      <input type="hidden" name="amount[2183623163]" value="">
+    </form>
+  </div>
+  <div id="stockRow2164329369" class="article-row">
+    <a href="/en/Magic/Products/Singles/Commander-Legends/Divine-Visitation">Divine Visitation</a>
+    <span class="badge">EX</span><span class="icon me-2" aria-label="German"></span>
+    <span class="color-primary">7,67 €</span><span>7</span>
+    <select><option>1</option></select>
+    <form method="POST" action="/en/Magic/Users/PapaSven/Offers/Singles" data-ajax-action="ShoppingCart_Add_AddArticlesFromUserOffers" data-ajax-callback="Offers.addArticlesCB">
+      <input type="hidden" name="__cmtkn" value="tok123">
+      <button type="submit" data-id-amount="2164329369">Put in cart</button>
+      <input type="hidden" name="idArticle[2164329369]" value="2164329369">
+      <input type="hidden" name="amount[2164329369]" value="">
+    </form>
+  </div>
+</main>
+<div id="toast"></div>
+<script>
+  // stands in for Cardmarket's own script: it handles the AJAX forms, a page-made form would get no handler
+  for (const f of document.querySelectorAll("form[data-ajax-action]")) {
+    f.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const body = new URLSearchParams(new FormData(f));
+      fetch("/__test/add", { method: "POST", body }).then(() => {
+        const a = document.createElement("div"); a.className = "alert"; a.textContent = "Articles added to your cart.";
+        document.getElementById("toast").append(a);
+      });
+    });
+  }
+</script>
+</body></html>

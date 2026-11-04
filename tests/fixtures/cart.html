@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Shopping Cart - Cardmarket</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 0; background: #f2f4f7; color: #222; }
+  .top { background: #012169; color: #fff; padding: 14px 24px; font-weight: 700; }
+  main { max-width: 1000px; margin: 24px auto; display: grid; gap: 16px; }
+  section, .summary { background: #fff; padding: 12px 20px; border-radius: 6px; }
+  section h2 a { color: #012169; }
+  table { width: 100%; border-collapse: collapse; } td { border-top: 1px solid #e3e3e3; padding: 8px 6px; }
+  .badge { background: #2c8a3e; color: #fff; border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+  .color-primary { color: #012169; font-weight: 700; }
+  dl { display: grid; grid-template-columns: 1fr auto; margin: 0; } dd { margin: 0; text-align: right; }
+</style></head>
+<body>
+<div class="top">Cardmarket · Shopping Cart</div>
+<main>
+  <section class="shipment-block">
+    <h2><a href="/en/Magic/Users/PapaSven">PapaSven</a></h2>
+    <table>
+      <tr data-article-id="2183623163"><td class="amount">1 x</td>
+        <td><a href="/en/Magic/Products/Singles/Modern-Horizons/Hero-of-Bladehold">Hero of Bladehold</a></td>
+        <td><span class="badge">NM</span></td><td><span class="icon me-2" aria-label="English"></span></td>
+        <td><span class="color-primary">1,49 €</span></td>
+        <td><form method="POST"><input type="hidden" name="idArticle" value="2183623163"><button type="submit">Remove</button></form></td></tr>
+      <tr data-article-id="2164329369"><td class="amount">1 x</td>
+        <td><a href="/en/Magic/Products/Singles/Commander-Legends/Divine-Visitation">Divine Visitation</a></td>
+        <td><span class="badge">NM</span></td><td><span class="icon me-2" aria-label="English"></span></td>
+        <td><span class="color-primary">7,67 €</span></td>
+        <td><form method="POST"><input type="hidden" name="idArticle" value="2164329369"><button type="submit">Remove</button></form></td></tr>
+    </table>
+  </section>
+  <section class="shipment-block">
+    <h2><a href="/en/Magic/Users/cernyrytir">cernyrytir</a></h2>
+    <table>
+      <tr data-article-id="2102303005"><td class="amount">6 x</td>
+        <td><a href="/en/Magic/Products/Singles/Bloomburrow/Mountain-V2">Mountain (V.2)</a></td>
+        <td><span class="badge">NM</span></td><td><span class="icon me-2" aria-label="English"></span></td>
+        <td><span class="color-primary">0,02 €</span></td>
+        <td><form method="POST"><input type="hidden" name="idArticle" value="2102303005"><button type="submit">Remove</button></form></td></tr>
+      <tr data-article-id="2145517710"><td class="amount">1 x</td>
+        <td><a href="/en/Magic/Products/Singles/Dominaria-United/Sheoldred-the-Apocalypse">Sheoldred, the Apocalypse</a></td>
+        <td><span class="badge">EX</span></td><td><span class="icon me-2" aria-label="German"></span></td>
+        <td><span class="color-primary">64,90 €</span></td>
+        <td><form method="POST"><input type="hidden" name="idArticle" value="2145517710"><button type="submit">Remove</button></form></td></tr>
+    </table>
+  </section>
+  <div class="summary"><dl>
+    <dt>Number of shipments</dt><dd>2 Sellers</dd>
+    <dt>Amount of articles</dt><dd>9 Articles</dd>
+    <dt>Article Value</dt><dd>74,18 €</dd>
+    <dt>Shipping</dt><dd>3,30 €</dd>
+    <dt>Trustee Service</dt><dd>0,20 €</dd>
+    <dt>Total</dt><dd>77,68 €</dd>
+  </dl>
+  <form method="POST" action="/en/Magic/ShoppingCart"><input type="submit" value="Remove all articles"></form>
+  <p><a href="#">Proceed to Checkout</a></p></div>
+</main>
+</body></html>
