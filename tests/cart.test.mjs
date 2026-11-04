@@ -151,9 +151,20 @@ test("sameItems ignores order", () => {
   assert.equal(C.sameItems([{ id: "1", qty: 1 }], [{ id: "1", qty: 2 }]), false);
 });
 
-test("the remove-all button is found on the cart page", () => {
+test("the remove-all button is found on the cart page, in every language, but never the per-seller one", () => {
   assert.equal(C.removeAllButton(page("cart.html")).value, "Remove all articles");
   assert.equal(C.removeAllButton(page("offers.html")), null);
+  const de = html(`<form><button type="submit">Artikel dieses Verkäufers entfernen</button></form>
+    <form><input type="submit" value="Alle Artikel entfernen"></form>`, "https://www.cardmarket.com/de/Magic/ShoppingCart");
+  assert.equal(C.removeAllButton(de).value, "Alle Artikel entfernen");
+  const fr = html(`<form><button type="submit" title="Vider le panier"><span class="fonticon-trash"></span></button></form>`);
+  assert.ok(C.removeAllButton(fr));
+  const byAction = html(`<form data-ajax-action="ShoppingCart_RemoveAllArticles"><button type="submit"><span class="icon"></span></button></form>`);
+  assert.ok(C.removeAllButton(byAction));
+  const sellerOnly = html(`<form><button type="submit">Remove articles from this seller</button></form>`);
+  assert.equal(C.removeAllButton(sellerOnly), null);
+  assert.equal(C.onEnglish("/en/Magic/ShoppingCart"), true);
+  assert.equal(C.onEnglish("/de/Magic/ShoppingCart"), false);
 });
 
 test("page info holds the structure, never names or prices", () => {
@@ -161,4 +172,7 @@ test("page info holds the structure, never names or prices", () => {
   assert.ok(info.includes("data-article-id"));
   assert.ok(!info.includes("Sheoldred"));
   assert.ok(!info.includes("64,90"));
+  const parsed = JSON.parse(info);
+  assert.ok(parsed.buttons.includes("Remove all articles"));
+  assert.ok(!parsed.buttons.includes("Remove"));  // the article rows' own buttons are left out
 });

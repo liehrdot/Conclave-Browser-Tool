@@ -182,10 +182,21 @@
     };
   }
   // The "Remove all articles" button on the cart page (no question asked by Cardmarket, so the extension asks).
+  // Its label follows the page's language (/de/, /fr/ …), so it is found by any of those words or by what its form
+  // does; the per-seller button ("Remove articles from this seller") is never taken.
+  const REMOVE_ALL = /remove all|alle artikel|alles entfernen|warenkorb leeren|vider le panier|tous les articles|todos los art[ií]culos|vaciar|tutti gli articoli|svuota|todos os artigos/i;
+  const PER_SELLER = /seller|verk[äa]ufer|h[äa]ndler|vendeur|vendedor|venditore/i;
+  const REMOVE_ALL_ACTION = /RemoveAll|EmptyCart|ClearCart|DeleteAll|ShoppingCart_Remove(?!.*Article)/i;
   function removeAllButton(doc) {
-    return [...doc.querySelectorAll("input[type=submit], button")]
-      .find((b) => /remove all articles|alle artikel entfernen/i.test(b.value || b.textContent || "")) || null;
+    const label = (b) => [b.value, b.textContent, b.getAttribute("title"), b.getAttribute("aria-label")].filter(Boolean).join(" ").replace(/\s+/g, " ");
+    const buttons = [...doc.querySelectorAll("input[type=submit], button, a[role=button], a.btn")];
+    const byText = buttons.find((b) => REMOVE_ALL.test(label(b)) && !PER_SELLER.test(label(b)));
+    if (byText) return byText;
+    const form = [...doc.forms].find((f) => REMOVE_ALL_ACTION.test(`${f.getAttribute("data-ajax-action") || ""} ${f.getAttribute("action") || ""}`));
+    return form ? form.querySelector("button[type=submit], input[type=submit], button:not([type])") : null;
   }
+  // The English cart page: the panel's own wording matches it best, and every other language reaches the same cart.
+  const onEnglish = (path) => /^\/en\//.test(path || "");
 
   // ---- snapshots ----
   function summary(items) {
@@ -290,7 +301,11 @@
         for (let n = a; n && n.tagName !== "BODY" && chain.length < 8; n = n.parentElement) chain.push(shape(n));
         return chain;
       }),
-      forms: [...doc.forms].slice(0, 6).map((f) => ({
+      // the page's own button labels (Cardmarket's UI words, which change with the language), never card names
+      buttons: [...doc.querySelectorAll("input[type=submit], button")].filter((b) => !b.closest("[id^='stockRow'], tr, [data-article-id]"))
+        .map((b) => (b.value || b.textContent || b.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 40)).filter(Boolean).slice(0, 20),
+      ids: [...new Set([...doc.querySelectorAll("[id]")].map((n) => n.id).filter((id) => /\d{5,}/.test(id)).map((id) => id.replace(/\d+/g, "N")))].slice(0, 20),
+      forms: [...doc.forms].slice(0, 16).map((f) => ({
         action: (f.getAttribute("action") || "").split("?")[0], ajax: f.getAttribute("data-ajax-action") || "",
         fields: [...f.elements].map((x) => (x.name || "").replace(/\d+/g, "N")).filter(Boolean).slice(0, 12),
       })),
@@ -300,7 +315,7 @@
 
   root.ConclaveCart = {
     BASE, CART_PATH, MIN_GAP_MS, isChallenge, parsePrice, slugOf, productOf, sellerOf, parseOffers, addForm, parseCart,
-    cartTotals, removeAllButton, summary, makeSnapshot, sameItems, exportSnapshot, importSnapshot, restoreFields, formSeller,
+    cartTotals, removeAllButton, onEnglish, summary, makeSnapshot, sameItems, exportSnapshot, importSnapshot, restoreFields, formSeller,
     offersUrl, diffCart, pageInfo,
   };
   if (typeof module === "object" && module.exports) module.exports = root.ConclaveCart;

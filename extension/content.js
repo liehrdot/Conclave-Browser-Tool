@@ -274,7 +274,15 @@
   }
   async function empty(cart) {
     const b = C.removeAllButton(document);
-    if (!b) return say("error", t("noEmptyButton"));
+    if (!b) {
+      // another language's button label we don't know yet: the English cart page has the same cart
+      if (!C.onEnglish(location.pathname)) {
+        await setJob({ type: "empty" });
+        say("info", t("openingCart"));
+        return go(C.BASE + C.CART_PATH);
+      }
+      return say("error", t("noEmptyButton"));
+    }
     // keep what was there, unless the newest snapshot already is this cart
     let kept = false;
     if (cart.items.length) {
