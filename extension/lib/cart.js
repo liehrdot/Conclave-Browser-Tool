@@ -9,6 +9,8 @@
   // Cardmarket asked for slow traffic: at least this long between two requests the extension makes.
   const MIN_GAP_MS = 2500;
   const CONDITIONS = ["MT", "NM", "EX", "GD", "LP", "PL", "PO"];
+  // Every article carries qty 1…99 from the moment it is read or imported, so nothing downstream needs a default.
+  const clampQty = (n) => Math.max(1, Math.min(99, Number(n) || 1));
 
   // ---- Cloudflare's "Just a moment …" check: never try to get around it, stop and let the person solve it ----
   const CHALLENGE = /cf-chl|challenge-platform|cf_chl_opt|<title>\s*(?:Just a moment|Attention Required! \| Cloudflare)|Checking your browser before/i;
@@ -27,13 +29,9 @@
     const n = Number(m[0].replace(/\./g, "").replace(",", "."));
     return Number.isFinite(n) ? n : null;
   }
-  const sameMoney = (a, b) => a != null && b != null && Math.abs(a - b) < 0.005;
+  const CENT = 0.005;
+  const sameMoney = (a, b) => a != null && b != null && Math.abs(a - b) < CENT;
 
-  // "Hero of Bladehold" → "Hero-of-Bladehold", "Tocasia's Welcome" → "Tocasias-Welcome" (as in Cardmarket's URLs)
-  function slugOf(name) {
-    return String(name || "").split(" // ")[0].normalize("NFKD").replace(/[̀-ͯ]/g, "")
-      .replace(/['’,.:!?"()]/g, "").trim().replace(/[\s/]+/g, "-").replace(/-+/g, "-");
-  }
   // "/en/Magic/Products/Singles/Modern-Horizons/Hero-of-Bladehold" → {set, card}
   function productOf(href) {
     const parts = String(href || "").split(/[?#]/)[0].split("/");
@@ -153,7 +151,7 @@
         if (seen.has(id)) continue;
         const row = rowFor(el, id);
         if (!row) continue;
-        seen.set(id, { id, seller: sellerFor(row), ...readRow(row), qty: qtyIn(row) });
+        seen.set(id, { id, seller: sellerFor(row), ...readRow(row), qty: clampQty(qtyIn(row)) });
       }
     }
     const items = [...seen.values()];
@@ -201,14 +199,14 @@
   // ---- snapshots ----
   function summary(items) {
     const sellers = new Set(items.map((i) => i.seller).filter(Boolean));
-    const articles = items.reduce((s, i) => s + (i.qty || 1), 0);
+    const articles = items.reduce((s, i) => s + i.qty, 0);
     const priced = items.every((i) => i.price != null);
-    const value = priced ? Math.round(items.reduce((s, i) => s + i.price * (i.qty || 1), 0) * 100) / 100 : null;
+    const value = priced ? Math.round(items.reduce((s, i) => s + i.price * i.qty, 0) * 100) / 100 : null;
     return { sellers: sellers.size, articles, value };
   }
   function makeSnapshot(cart, { name, now = new Date() } = {}) {
     const items = cart.items.map(({ id, seller, name: n, slug, set, price, cond, lang, qty }) =>
-      ({ id, seller, name: n, slug, set, price, cond, lang, qty: qty || 1 }));
+      ({ id, seller, name: n, slug, set, price, cond, lang, qty: clampQty(qty) }));
     return {
       id: `s${now.getTime().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
       name: name || "", created: now.toISOString(), items,
@@ -217,7 +215,7 @@
   }
   // Same articles in the same amounts (used to skip a second identical snapshot before emptying the cart).
   function sameItems(a, b) {
-    const key = (items) => items.map((i) => `${i.id}x${i.qty || 1}`).sort().join(",");
+    const key = (items) => items.map((i) => `${i.id}x${i.qty}`).sort().join(",");
     return key(a) === key(b);
   }
 
@@ -233,7 +231,7 @@
       items = data.items.filter((i) => i && /^\d+$/.test(String(i.id))).map((i) => ({
         id: String(i.id), seller: String(i.seller || ""), name: String(i.name || ""), slug: String(i.slug || ""), set: String(i.set || ""),
         price: typeof i.price === "number" ? i.price : parsePrice(i.price), cond: String(i.cond || ""), lang: String(i.lang || ""),
-        qty: Math.max(1, Math.min(99, Number(i.qty) || 1)),
+        qty: clampQty(i.qty),
       }));
     } else if (data && typeof data === "object" && !Array.isArray(data)) {
       items = [];
@@ -241,7 +239,7 @@
         if (!Array.isArray(ids)) continue;
         for (const raw of ids) {
           const m = String(raw).match(/^(\d+)(?:x(\d+))?$/);
-          if (m) items.push({ id: m[1], seller, name: "", slug: "", set: "", price: null, cond: "", lang: "", qty: Math.min(99, Number(m[2] || 1)) });
+          if (m) items.push({ id: m[1], seller, name: "", slug: "", set: "", price: null, cond: "", lang: "", qty: clampQty(m[2]) });
         }
       }
     }
@@ -255,7 +253,7 @@
   function restoreFields(items) {
     const fields = [];
     for (const i of items) {
-      fields.push([`idArticle[${i.id}]`, i.id], [`amount[${i.id}]`, String(i.qty || 1)]);
+      fields.push([`idArticle[${i.id}]`, i.id], [`amount[${i.id}]`, String(i.qty)]);
     }
     return fields;
   }
@@ -272,7 +270,6 @@
   // asks the seller's offers for that name and matches the slug, never the shown (maybe German) name.
   const BASICS = /^(Plains|Island|Swamp|Mountain|Forest|Wastes|Snow-Covered-\w+)$/i;
   const baseSlug = (slug) => String(slug || "").replace(/-V-?\d+$/i, "");
-  const CONDITION_RANK = { MT: 0, NM: 1, EX: 2, GD: 3, LP: 4, PL: 5, PO: 6 };
   const norm = (s) => String(s || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   // the request(s) for one article: its name, then (if that finds nothing) its longest word
   function searchUrls(item) {
@@ -289,11 +286,11 @@
   // The best offer for a missing article: the same card (slug, so "…-V1" variants don't mix), the same language,
   // a condition at least as good; then the same edition, the same price, the cheapest, the better condition.
   function pickOffer(item, offers) {
-    const rank = (c) => (c in CONDITION_RANK ? CONDITION_RANK[c] : 9);
+    const rank = (c) => (CONDITIONS.includes(c) ? CONDITIONS.indexOf(c) : 9);
     const fits = offers.filter((o) => o.id !== item.id
       && (item.slug ? o.slug === item.slug : norm(o.name) === norm(item.name))
       && (!item.lang || !o.lang || o.lang === item.lang)
-      && (!(item.cond in CONDITION_RANK) || rank(o.cond) <= rank(item.cond)));
+      && (!CONDITIONS.includes(item.cond) || rank(o.cond) <= rank(item.cond)));
     const score = (o) => [o.set === item.set ? 0 : 1, sameMoney(o.price, item.price) ? 0 : 1, o.price == null ? Infinity : o.price, rank(o.cond)];
     fits.sort((a, b) => {
       const x = score(a), y = score(b);
@@ -302,7 +299,7 @@
     });
     const best = fits[0];
     if (!best) return null;
-    return { ...best, qty: Math.min(item.qty || 1, best.max || 1), pricier: best.price != null && item.price != null && best.price > item.price + 0.005 };
+    return { ...best, qty: Math.min(item.qty, best.max || 1), pricier: best.price != null && item.price != null && best.price > item.price + CENT };
   }
   // the snapshot with the found offers in place of the old articles (same seller, new article number)
   function replaceItems(snapshot, found) {
@@ -323,7 +320,7 @@
       const c = inCart.get(w.id);
       if (!c) { missing.push(w); continue; }
       found.push(w);
-      if ((c.qty || 1) < (w.qty || 1)) fewer.push({ ...w, have: c.qty || 1 });
+      if (c.qty < w.qty) fewer.push({ ...w, have: c.qty });
       if (w.price != null && c.price != null && !sameMoney(w.price, c.price)) pricier.push({ ...w, now: c.price });
       if (c.lang && c.lang !== "English") foreign.push({ ...w, lang: c.lang });
     }
@@ -361,8 +358,8 @@
   }
 
   root.ConclaveCart = {
-    BASE, CART_PATH, MIN_GAP_MS, isChallenge, parsePrice, slugOf, productOf, sellerOf, parseOffers, addForm, parseCart,
-    cartTotals, removeAllButton, onEnglish, summary, makeSnapshot, sameItems, exportSnapshot, importSnapshot, restoreFields, formSeller,
+    BASE, CART_PATH, MIN_GAP_MS, isChallenge, parsePrice, parseOffers, addForm, parseCart,
+    removeAllButton, onEnglish, summary, makeSnapshot, sameItems, exportSnapshot, importSnapshot, restoreFields, formSeller,
     offersUrl, diffCart, pageInfo, searchUrls, pickOffer, replaceItems,
   };
   if (typeof module === "object" && module.exports) module.exports = root.ConclaveCart;
