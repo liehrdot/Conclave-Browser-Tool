@@ -40,14 +40,18 @@
     await gap();
     location.assign(url);
   }
-  async function fetchCart() {
-    if (onCart()) return document;
+  // Every page the extension reads goes through here: a Cloudflare check can come with any status, so it is
+  // recognised before the status, and the person is asked to solve it (never worked around).
+  async function fetchPage(url) {
     await gap();
-    const res = await fetch(C.BASE + C.CART_PATH, { credentials: "include" });
+    const res = await fetch(url, { credentials: "include" });
     const html = await res.text();
     if (C.isChallenge(html)) throw new Error("challenge");
     if (!res.ok) throw new Error(`http-${res.status}`);
     return new DOMParser().parseFromString(html, "text/html");
+  }
+  async function fetchCart() {
+    return onCart() ? document : fetchPage(C.BASE + C.CART_PATH);
   }
 
   // ---- the panel (in a shadow root, so Cardmarket's styles and ours never mix) ----
@@ -266,15 +270,9 @@
       say("info", t("searching", n + 1, missing.length, item.name || item.slug));
       let offer = null;
       for (const url of C.searchUrls(item)) {
-        let html;
-        try {
-          await gap();
-          const res = await fetch(url, { credentials: "include" });
-          html = await res.text();
-          if (!res.ok) throw new Error(`http-${res.status}`);
-        } catch (e) { return fail(e); }
-        if (C.isChallenge(html)) return say("warn", t("challenge"));
-        const offers = C.parseOffers(new DOMParser().parseFromString(html, "text/html"), url).filter((o) => !taken.has(o.id));
+        let doc;
+        try { doc = await fetchPage(url); } catch (e) { return fail(e); }
+        const offers = C.parseOffers(doc, url).filter((o) => !taken.has(o.id));
         offer = C.pickOffer(item, offers);
         if (offer) break;
       }
