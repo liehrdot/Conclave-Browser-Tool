@@ -143,7 +143,7 @@ test("snapshots go out as text and come back, and the method doc's short form is
 });
 
 test("sameItems ignores order", () => {
-  assert.equal(C.sameItems([{ id: "1", qty: 1 }, { id: "2", qty: 2 }], [{ id: "2", qty: 2 }, { id: "1" }]), true);
+  assert.equal(C.sameItems([{ id: "1", qty: 1 }, { id: "2", qty: 2 }], [{ id: "2", qty: 2 }, { id: "1", qty: 1 }]), true);
   assert.equal(C.sameItems([{ id: "1", qty: 1 }], [{ id: "1", qty: 2 }]), false);
 });
 
