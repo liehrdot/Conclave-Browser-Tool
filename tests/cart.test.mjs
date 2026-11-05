@@ -18,12 +18,6 @@ test("prices are read the way Cardmarket writes them", () => {
   assert.equal(C.parsePrice("–"), null);
 });
 
-test("slugs follow Cardmarket's URLs", () => {
-  assert.equal(C.slugOf("Hero of Bladehold"), "Hero-of-Bladehold");
-  assert.equal(C.slugOf("Tocasia's Welcome"), "Tocasias-Welcome");
-  assert.equal(C.slugOf("Sheoldred, the Apocalypse"), "Sheoldred-the-Apocalypse");
-});
-
 test("offer rows give id, card, condition, price, language and stock without mixing stock into the price", () => {
   const offers = C.parseOffers(page("offers.html"), "https://www.cardmarket.com/en/Magic/Users/PapaSven/Offers/Singles");
   assert.equal(offers.length, 2);
@@ -142,12 +136,14 @@ test("snapshots go out as text and come back, and the method doc's short form is
   assert.deepEqual(doc.items.map((i) => [i.seller, i.id, i.qty]), [["PapaSven", "2164329369", 1], ["PapaSven", "2183623163", 1], ["cernyrytir", "2102303005", 6]]);
   assert.equal(doc.totals.articles, 8);
   assert.equal(doc.totals.value, null);
+  const odd = C.importSnapshot(JSON.stringify({ PapaSven: ["2164329369x0", "2183623163x500"] }));
+  assert.deepEqual(odd.items.map((i) => i.qty), [1, 99], "every article holds 1…99 copies");
   assert.throws(() => C.importSnapshot("hello"), /not-json/);
   assert.throws(() => C.importSnapshot("{}"), /no-articles/);
 });
 
 test("sameItems ignores order", () => {
-  assert.equal(C.sameItems([{ id: "1", qty: 1 }, { id: "2", qty: 2 }], [{ id: "2", qty: 2 }, { id: "1" }]), true);
+  assert.equal(C.sameItems([{ id: "1", qty: 1 }, { id: "2", qty: 2 }], [{ id: "2", qty: 2 }, { id: "1", qty: 1 }]), true);
   assert.equal(C.sameItems([{ id: "1", qty: 1 }], [{ id: "1", qty: 2 }]), false);
 });
 

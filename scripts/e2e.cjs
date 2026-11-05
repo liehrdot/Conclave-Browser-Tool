@@ -20,7 +20,7 @@ const RELISTED = "2199000005";  // tests/fixtures/offers-search.html: the same D
     args: [`--disable-extensions-except=${path.join(root, "extension")}`, `--load-extension=${path.join(root, "extension")}`],
   });
   const full = fixture("cart.html");
-  let cart = full, added = [], requests = 0;
+  let cart = full, added = [], requests = 0, challengeNext = false;
   await ctx.route("https://www.cardmarket.com/**", async (route) => {
     const req = route.request(), url = new URL(req.url());
     requests++;
@@ -38,6 +38,10 @@ const RELISTED = "2199000005";  // tests/fixtures/offers-search.html: the same D
     if (url.pathname.endsWith("/ShoppingCart")) {
       if (req.method() === "POST") { cart = fixture("cart-empty.html"); return route.fulfill({ status: 200, contentType: "text/html", body: cart }); }
       return route.fulfill({ status: 200, contentType: "text/html", body: cart });
+    }
+    if (url.pathname.includes("/Offers/Singles") && url.searchParams.get("name") && challengeNext) {  // Cloudflare answers 403 with its check
+      challengeNext = false;
+      return route.fulfill({ status: 403, contentType: "text/html", body: "<html><head><title>Just a moment...</title></head><body>cf-challenge</body></html>" });
     }
     if (url.pathname.includes("/Offers/Singles") && url.searchParams.get("name")) return route.fulfill({ status: 200, contentType: "text/html", body: fixture("offers-search.html") });
     if (url.pathname.includes("/Offers/Singles")) return route.fulfill({ status: 200, contentType: "text/html", body: fixture("offers.html") });
@@ -86,6 +90,12 @@ const RELISTED = "2199000005";  // tests/fixtures/offers-search.html: the same D
   check((await note()).includes("3 of 4 articles"), "the check names the missing article");
   await shot("6-restored");
 
+  challengeNext = true;
+  await click("Look for 1 again");
+  await panel.locator(".note.warn").filter({ hasText: "checking your browser" }).waitFor({ timeout: 15000 });
+  check(true, "a Cloudflare check served with 403 asks the person to solve it");
+  await panel.getByRole("button", { name: "Compare", exact: true }).first().click();  // solved: compare again, then look again
+  await panel.locator(".note.warn").filter({ hasText: "3 of 4" }).waitFor({ timeout: 15000 });
   await click("Look for 1 again");
   await panel.locator(".note.warn, .note.ok").filter({ hasText: "Found" }).waitFor({ timeout: 15000 });
   check((await panel.locator(".diff").textContent()).includes("€7.90"), "the re-listed Divine Visitation is found, marked as more expensive");
