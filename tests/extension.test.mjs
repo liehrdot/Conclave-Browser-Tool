@@ -14,8 +14,14 @@ test("the messages files are up to date (run npm run messages)", () => {
 
 test("every text the panel uses exists, in English and German", () => {
   const code = readFileSync(ext("content.js"), "utf8");
-  const used = new Set([...code.matchAll(/\bt\("([A-Za-z]+)"/g)].map((m) => m[1]));
-  for (const m of code.matchAll(/\bt\([^"()]*\? "([A-Za-z]+)" : "([A-Za-z]+)"/g)) { used.add(m[1]); used.add(m[2]); }
+  // every quoted word inside a t(…) call, brackets balanced, so t(ok ? "a" : "b") and t(e.message === "x" ? "a" : "b") count too
+  const used = new Set();
+  for (const m of code.matchAll(/\bt\(/g)) {
+    let depth = 1, end = m.index + m[0].length;
+    for (; depth && end < code.length; end++) depth += code[end] === "(" ? 1 : code[end] === ")" ? -1 : 0;
+    for (const k of code.slice(m.index + m[0].length, end - 1).matchAll(/"([A-Za-z]+)"/g)) used.add(k[1]);
+  }
+  assert.ok(used.has("importNotJson") && used.has("foundAll"), "the scan finds texts picked by a condition");
   for (const key of used) {
     assert.ok(MESSAGES[key], `missing text ${key}`);
     assert.ok(MESSAGES[key][0] && MESSAGES[key][1], `text ${key} needs both languages`);
@@ -37,7 +43,7 @@ test("the manifest is Manifest V3, only for cardmarket.com, and every file it na
   assert.equal(manifest.version, JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version);
 });
 
-test("the extension never goes near checkout", () => {
+test("tripwire: the word checkout appears nowhere in the code (the rule: never automate checkout)", () => {
   for (const f of ["content.js", "lib/cart.js", "background.js"]) {
     assert.ok(!/checkout/i.test(readFileSync(ext(f), "utf8").replace(/\/\/.*$/gm, "")), f);
   }
